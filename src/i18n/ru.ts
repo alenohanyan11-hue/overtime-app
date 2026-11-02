@@ -32,6 +32,8 @@ export const ru = {
   paySemimonthly: 'Каждые 15 дней',
   schedule: 'График',
   workTime: 'Работа',
+  from: 'с',
+  to: 'до',
   lunch: 'Обед',
   dayOff: 'Выходной день',
   effectiveFrom: 'Действует с',

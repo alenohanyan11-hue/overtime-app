@@ -34,6 +34,8 @@ export const hy: Record<DictKey, string> = {
   paySemimonthly: '15 օրը մեկ',
   schedule: 'Աշխատանքային գրաֆիկ',
   workTime: 'Աշխատանք',
+  from: 'սկսած',
+  to: 'մինչև',
   lunch: 'Ճաշի ընդմիջում',
   dayOff: 'Հանգստյան օր',
   effectiveFrom: 'Գործում է սկսած',

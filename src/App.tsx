@@ -3,6 +3,7 @@ import { t } from './i18n'
 import { localISODate } from './store/storage'
 import { useAppState } from './store/useAppState'
 import { PeriodScreen } from './ui/PeriodScreen'
+import { SettingsScreen } from './ui/SettingsScreen'
 import { TodayScreen } from './ui/TodayScreen'
 
 type Tab = 'today' | 'period' | 'settings'
@@ -27,6 +28,7 @@ function App() {
             }}
           />
         )}
+        {tab === 'settings' && <SettingsScreen state={state} setState={setState} today={localISODate()} />}
       </main>
       <nav className="tabs">
         {(['today', 'period', 'settings'] as const).map((id) => (

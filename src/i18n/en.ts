@@ -34,6 +34,8 @@ export const en: Record<DictKey, string> = {
   paySemimonthly: 'Every 15 days',
   schedule: 'Schedule',
   workTime: 'Work',
+  from: 'from',
+  to: 'to',
   lunch: 'Lunch',
   dayOff: 'Day off',
   effectiveFrom: 'Effective from',

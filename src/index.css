@@ -98,3 +98,5 @@ main { flex: 1; padding: 16px 16px 96px; }
 h2 { margin: 8px 0 0; font-size: 18px; }
 .group { display: flex; flex-direction: column; gap: 12px; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.file-btn { display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; }
+.file-btn input { display: none; }
