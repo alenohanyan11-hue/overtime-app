@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { t } from './i18n'
 import { localISODate } from './store/storage'
 import { useAppState } from './store/useAppState'
+import { PeriodScreen } from './ui/PeriodScreen'
 import { TodayScreen } from './ui/TodayScreen'
 
 type Tab = 'today' | 'period' | 'settings'
@@ -16,6 +17,16 @@ function App() {
     <div className="app" lang={lang}>
       <main>
         {tab === 'today' && <TodayScreen key={date} state={state} setState={setState} date={date} onDateChange={setDate} />}
+        {tab === 'period' && (
+          <PeriodScreen
+            state={state}
+            today={localISODate()}
+            onOpenDay={(d) => {
+              setDate(d)
+              setTab('today')
+            }}
+          />
+        )}
       </main>
       <nav className="tabs">
         {(['today', 'period', 'settings'] as const).map((id) => (
