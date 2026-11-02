@@ -8,6 +8,8 @@ export const hy: Record<DictKey, string> = {
   left: 'Գնացել եմ',
   save: 'Պահպանել',
   saved: 'Պահպանված է',
+  comment: 'Մեկնաբանություն',
+  commentHint: 'Օրինակ՝ գույքագրում, շուտ բաց թողեցին',
   notWorked: 'Չեմ աշխատել',
   paidDayOff: 'Վճարովի հանգստյան օր',
   dayOffBadge: 'Հանգստյան օր',

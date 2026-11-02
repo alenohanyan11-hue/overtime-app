@@ -6,6 +6,8 @@ export const ru = {
   left: 'Ушёл',
   save: 'Сохранить',
   saved: 'Сохранено',
+  comment: 'Комментарий',
+  commentHint: 'Например: инвентаризация, отпустили раньше',
   notWorked: 'Не работал',
   paidDayOff: 'Оплачиваемый выходной',
   dayOffBadge: 'Выходной',

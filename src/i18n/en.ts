@@ -8,6 +8,8 @@ export const en: Record<DictKey, string> = {
   left: 'Left',
   save: 'Save',
   saved: 'Saved',
+  comment: 'Comment',
+  commentHint: 'For example: stocktaking, let go early',
   notWorked: "Didn't work",
   paidDayOff: 'Paid day off',
   dayOffBadge: 'Day off',

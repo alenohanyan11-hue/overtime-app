@@ -103,7 +103,9 @@ export function PeriodScreen({ state, today, onOpenDay }: Props) {
           ))}
           {summary.days.map((line) => {
             const off = isOff(line)
-            const classes = ['cal-day', off && 'off', line.date === today && 'today'].filter(Boolean).join(' ')
+            const classes = ['cal-day', off && 'off', line.date === today && 'today', line.entry?.note && 'has-note']
+              .filter(Boolean)
+              .join(' ')
             return (
               <button
                 key={line.date}

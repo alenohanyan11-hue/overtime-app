@@ -111,3 +111,12 @@ h2 { margin: 8px 0 0; font-size: 18px; }
 .cal-day.today { border-color: var(--accent); }
 .cal-num { font-size: 15px; }
 .cal-hours { font-size: 11px; min-height: 13px; }
+.note {
+  min-height: 84px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border);
+  background: var(--card); color: var(--text); font: inherit; font-size: 16px; resize: vertical;
+}
+.cal-day { position: relative; }
+.cal-day.has-note::after {
+  content: ''; position: absolute; top: 5px; right: 5px; width: 5px; height: 5px;
+  border-radius: 50%; background: var(--accent);
+}

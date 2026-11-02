@@ -52,6 +52,7 @@ describe('backup', () => {
     ['a time that is a number', { ...good, entries: { '2026-11-02': { date: '2026-11-02', status: 'worked', start: 900, end: '18:00' } } }],
     ['a time that is not HH:MM', { ...good, entries: { '2026-11-02': { date: '2026-11-02', status: 'worked', start: 'abc', end: '18:00' } } }],
     ['an entry stored under another date', { ...good, entries: { '2026-11-03': { date: '2026-11-02', status: 'absent' } } }],
+    ['a comment that is not text', { ...good, entries: { '2026-11-02': { date: '2026-11-02', status: 'absent', note: 5 } } }],
     ['a day off outside 0–6', { ...good, settingsHistory: [{ ...DEFAULT_SETTINGS, dayOff: 9 }] }],
     ['a negative rate', { ...good, settingsHistory: [{ ...DEFAULT_SETTINGS, rateAmount: -5 }] }],
     ['a bad schedule time', { ...good, settingsHistory: [{ ...DEFAULT_SETTINGS, workStart: '9' }] }],

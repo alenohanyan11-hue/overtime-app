@@ -29,10 +29,12 @@ export function TodayScreen({ state, setState, date, onDateChange }: Props) {
   const [status, setStatus] = useState<DayStatus>(saved?.status ?? (isWorkingDay(date, s) ? 'worked' : 'absent'))
   const [start, setStart] = useState(saved?.start ?? s.workStart)
   const [end, setEnd] = useState(saved?.end ?? s.workEnd)
+  const [note, setNote] = useState(saved?.note ?? '')
   const [error, setError] = useState<string | null>(null)
   const [justSaved, setJustSaved] = useState(false)
 
-  const entry: DayEntry = status === 'worked' ? { date, status, start, end } : { date, status }
+  const base: DayEntry = status === 'worked' ? { date, status, start, end } : { date, status }
+  const entry: DayEntry = note.trim() ? { ...base, note: note.trim() } : base
   const invalid = validateEntry(entry)
   const deviation = invalid ? 0 : dayDeviationMinutes(date, entry, s)
   const amount = (deviation / 60) * hourlyRate(s)
@@ -117,6 +119,21 @@ export function TodayScreen({ state, setState, date, onDateChange }: Props) {
         {formatHours(deviation, lang)} · {formatSignedAmount(amount)}
       </p>
       {error && <p className="error">{error}</p>}
+
+      <label className="field">
+        <span>{t(lang, 'comment')}</span>
+        <textarea
+          className="note"
+          rows={3}
+          maxLength={500}
+          placeholder={t(lang, 'commentHint')}
+          value={note}
+          onChange={(e) => {
+            setNote(e.target.value)
+            setJustSaved(false)
+          }}
+        />
+      </label>
 
       <button className="primary" onClick={save}>
         {t(lang, 'save')}

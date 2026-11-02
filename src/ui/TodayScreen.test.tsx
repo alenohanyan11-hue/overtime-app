@@ -64,6 +64,21 @@ describe('TodayScreen', () => {
     expect(screen.getByRole('button', { name: 'Не работал' })).toHaveAttribute('aria-pressed', 'true')
   })
 
+  it('saves a comment with the day', () => {
+    const setState = setup()
+    fireEvent.change(screen.getByLabelText('Комментарий'), { target: { value: '  Инвентаризация  ' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Сохранить' }))
+    expect(setState).toHaveBeenCalledWith({
+      ...state,
+      entries: { '2026-11-02': { date: '2026-11-02', status: 'worked', start: '09:00', end: '18:00', note: 'Инвентаризация' } },
+    })
+  })
+
+  it('shows the saved comment', () => {
+    setup({ ...state, entries: { '2026-11-02': { date: '2026-11-02', status: 'absent', note: 'Болел' } } })
+    expect(screen.getByLabelText('Комментарий')).toHaveValue('Болел')
+  })
+
   it('loads a saved entry', () => {
     setup({ ...state, entries: { '2026-11-02': { date: '2026-11-02', status: 'worked', start: '08:45', end: '19:15' } } })
     expect(screen.getByLabelText('Пришёл')).toHaveValue('08:45')

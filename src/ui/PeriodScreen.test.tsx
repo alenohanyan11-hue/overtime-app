@@ -50,6 +50,16 @@ describe('PeriodScreen', () => {
     expect(screen.getByTestId('day-2026-11-10')).toHaveClass('today')
   })
 
+  it('marks days that have a comment', () => {
+    const s: AppState = {
+      ...state,
+      entries: { ...state.entries, '2026-11-04': { ...state.entries['2026-11-04'], note: 'Склад' } },
+    }
+    render(<PeriodScreen state={s} today="2026-11-10" onOpenDay={() => {}} />)
+    expect(screen.getByTestId('day-2026-11-04')).toHaveClass('has-note')
+    expect(screen.getByTestId('day-2026-11-02')).not.toHaveClass('has-note')
+  })
+
   it('starts the calendar on the right weekday', () => {
     render(<PeriodScreen state={state} today="2026-11-10" onOpenDay={() => {}} />)
     // 1 Nov 2026 is a Sunday: six empty cells come before it in a Monday-first week

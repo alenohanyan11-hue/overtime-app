@@ -7,6 +7,7 @@ export interface DayEntry {
   status: DayStatus
   start?: string
   end?: string
+  note?: string
 }
 
 export interface WorkSettings {

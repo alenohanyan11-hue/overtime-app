@@ -47,7 +47,8 @@ function isEntry(v: unknown): v is DayEntry {
     isDate(v.date) &&
     (v.status === 'worked' || v.status === 'absent' || v.status === 'paidOff') &&
     (v.start === undefined || isTime(v.start)) &&
-    (v.end === undefined || isTime(v.end))
+    (v.end === undefined || isTime(v.end)) &&
+    (v.note === undefined || typeof v.note === 'string')
   )
 }
 
