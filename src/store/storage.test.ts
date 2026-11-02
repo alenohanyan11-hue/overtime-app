@@ -35,7 +35,30 @@ describe('load and save', () => {
   })
 })
 
+describe('damaged stored data', () => {
+  it('keeps a copy of data it could not read instead of losing it', () => {
+    localStorage.setItem(STORAGE_KEY, '{oops')
+    loadState(localStorage)
+    const kept = Object.keys(localStorage).filter((k) => k.startsWith(`${STORAGE_KEY}-damaged-`))
+    expect(kept).toHaveLength(1)
+    expect(localStorage.getItem(kept[0])).toBe('{oops')
+  })
+})
+
 describe('backup', () => {
+  const good = JSON.parse(exportData(st))
+
+  it.each([
+    ['a time that is a number', { ...good, entries: { '2026-11-02': { date: '2026-11-02', status: 'worked', start: 900, end: '18:00' } } }],
+    ['a time that is not HH:MM', { ...good, entries: { '2026-11-02': { date: '2026-11-02', status: 'worked', start: 'abc', end: '18:00' } } }],
+    ['an entry stored under another date', { ...good, entries: { '2026-11-03': { date: '2026-11-02', status: 'absent' } } }],
+    ['a day off outside 0–6', { ...good, settingsHistory: [{ ...DEFAULT_SETTINGS, dayOff: 9 }] }],
+    ['a negative rate', { ...good, settingsHistory: [{ ...DEFAULT_SETTINGS, rateAmount: -5 }] }],
+    ['a bad schedule time', { ...good, settingsHistory: [{ ...DEFAULT_SETTINGS, workStart: '9' }] }],
+  ])('rejects %s', (_name, data) => {
+    expect(() => importData(JSON.stringify(data))).toThrow('invalidBackup')
+  })
+
   it('imports what it exported', () => {
     expect(importData(exportData(st))).toEqual(st)
   })

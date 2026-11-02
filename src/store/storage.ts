@@ -19,25 +19,35 @@ function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v)
 }
 
+const isDate = (v: unknown) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)
+const isTime = (v: unknown) => typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v)
+
 function isSettings(v: unknown): v is WorkSettings {
   if (!isObject(v)) return false
   return (
-    typeof v.effectiveFrom === 'string' &&
+    isDate(v.effectiveFrom) &&
     (v.rateType === 'monthly' || v.rateType === 'hourly') &&
     typeof v.rateAmount === 'number' &&
+    Number.isFinite(v.rateAmount) &&
+    v.rateAmount >= 0 &&
     typeof v.monthlyDivisor === 'number' &&
+    Number.isFinite(v.monthlyDivisor) &&
     v.monthlyDivisor > 0 &&
     (v.payPeriod === 'monthly' || v.payPeriod === 'semimonthly') &&
-    ['workStart', 'workEnd', 'lunchStart', 'lunchEnd'].every((k) => typeof v[k] === 'string') &&
-    typeof v.dayOff === 'number'
+    ['workStart', 'workEnd', 'lunchStart', 'lunchEnd'].every((k) => isTime(v[k])) &&
+    Number.isInteger(v.dayOff) &&
+    (v.dayOff as number) >= 0 &&
+    (v.dayOff as number) <= 6
   )
 }
 
 function isEntry(v: unknown): v is DayEntry {
   return (
     isObject(v) &&
-    typeof v.date === 'string' &&
-    (v.status === 'worked' || v.status === 'absent' || v.status === 'paidOff')
+    isDate(v.date) &&
+    (v.status === 'worked' || v.status === 'absent' || v.status === 'paidOff') &&
+    (v.start === undefined || isTime(v.start)) &&
+    (v.end === undefined || isTime(v.end))
   )
 }
 
@@ -51,7 +61,7 @@ function parseState(json: string): AppState {
     data.settingsHistory.length === 0 ||
     !data.settingsHistory.every(isSettings) ||
     !isObject(data.entries) ||
-    !Object.values(data.entries).every(isEntry)
+    !Object.entries(data.entries).every(([key, e]) => isEntry(e) && e.date === key)
   ) {
     throw new Error('invalidBackup')
   }
@@ -59,10 +69,13 @@ function parseState(json: string): AppState {
 }
 
 export function loadState(storage: Storage = localStorage): AppState {
+  const raw = storage.getItem(STORAGE_KEY)
+  if (!raw) return defaultState()
   try {
-    const raw = storage.getItem(STORAGE_KEY)
-    return raw ? parseState(raw) : defaultState()
+    return parseState(raw)
   } catch {
+    // Keep the unreadable data aside so the next save can't destroy it for good.
+    storage.setItem(`${STORAGE_KEY}-damaged-${Date.now()}`, raw)
     return defaultState()
   }
 }
