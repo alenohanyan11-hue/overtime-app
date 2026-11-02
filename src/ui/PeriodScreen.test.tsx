@@ -34,10 +34,32 @@ describe('PeriodScreen', () => {
     expect(screen.getByTestId('period-title')).toHaveTextContent('16–31 октября 2026')
   })
 
+  it('shows a small calendar with hours on worked days and red days off', () => {
+    const s: AppState = {
+      ...state,
+      entries: { ...state.entries, '2026-11-06': { date: '2026-11-06', status: 'absent' } },
+    }
+    render(<PeriodScreen state={s} today="2026-11-10" onOpenDay={() => {}} />)
+    expect(screen.getAllByTestId(/^day-/)).toHaveLength(15)
+    expect(screen.getByTestId('day-2026-11-02')).toHaveTextContent('+2ч')
+    expect(screen.getByTestId('day-2026-11-03')).toHaveTextContent('−1ч')
+    expect(screen.getByTestId('day-2026-11-07')).not.toHaveTextContent(/[+−]/)
+    expect(screen.getByTestId('day-2026-11-01')).toHaveClass('off')
+    expect(screen.getByTestId('day-2026-11-06')).toHaveClass('off')
+    expect(screen.getByTestId('day-2026-11-02')).not.toHaveClass('off')
+    expect(screen.getByTestId('day-2026-11-10')).toHaveClass('today')
+  })
+
+  it('starts the calendar on the right weekday', () => {
+    render(<PeriodScreen state={state} today="2026-11-10" onOpenDay={() => {}} />)
+    // 1 Nov 2026 is a Sunday: six empty cells come before it in a Monday-first week
+    expect(screen.getByTestId('calendar').querySelectorAll('.cal-blank')).toHaveLength(6)
+  })
+
   it('opens a day from the list', () => {
     const onOpenDay = vi.fn()
     render(<PeriodScreen state={state} today="2026-11-10" onOpenDay={onOpenDay} />)
-    fireEvent.click(screen.getByRole('button', { name: /2 ноября/ }))
+    fireEvent.click(screen.getByRole('button', { name: /^2 ноября/ }))
     expect(onOpenDay).toHaveBeenCalledWith('2026-11-02')
   })
 })
