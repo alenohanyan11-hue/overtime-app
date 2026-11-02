@@ -27,7 +27,7 @@ export function PeriodScreen({ state, today, onOpenDay }: Props) {
   const listed = summary.days.filter((d) => d.entry || !d.working)
 
   function shift(delta: number) {
-    setPeriod(shiftPeriod(period, payPeriodAt(period.start), delta))
+    setPeriod(shiftPeriod(period, state.settingsHistory, delta))
   }
 
   return (

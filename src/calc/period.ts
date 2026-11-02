@@ -45,10 +45,12 @@ function addDays(date: string, delta: number): string {
   return iso(d.getFullYear(), d.getMonth() + 1, d.getDate())
 }
 
-export function shiftPeriod(period: Period, p: PayPeriod, delta: number): Period {
+export function shiftPeriod(period: Period, history: WorkSettings[], delta: number): Period {
   let current = period
   for (let i = 0; i < Math.abs(delta); i++) {
-    current = periodFor(delta > 0 ? addDays(current.end, 1) : addDays(current.start, -1), p)
+    const target = delta > 0 ? addDays(current.end, 1) : addDays(current.start, -1)
+    // The payout type can change over time: shape the period by the settings in force on the day it covers.
+    current = periodFor(target, settingsAt(history, target).payPeriod)
   }
   return current
 }

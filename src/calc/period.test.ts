@@ -27,12 +27,20 @@ describe('periodFor', () => {
 })
 
 describe('shiftPeriod', () => {
+  const semi: WorkSettings[] = [{ ...DEFAULT_SETTINGS, payPeriod: 'semimonthly' }]
+
   it('goes back across a month boundary', () => {
-    expect(shiftPeriod({ start: '2026-11-01', end: '2026-11-15' }, 'semimonthly', -1)).toEqual({ start: '2026-10-16', end: '2026-10-31' })
+    expect(shiftPeriod({ start: '2026-11-01', end: '2026-11-15' }, semi, -1)).toEqual({ start: '2026-10-16', end: '2026-10-31' })
   })
 
   it('goes forward across a year boundary', () => {
-    expect(shiftPeriod({ start: '2026-12-01', end: '2026-12-31' }, 'monthly', 1)).toEqual({ start: '2027-01-01', end: '2027-01-31' })
+    expect(shiftPeriod({ start: '2026-12-01', end: '2026-12-31' }, h, 1)).toEqual({ start: '2027-01-01', end: '2027-01-31' })
+  })
+
+  it('uses the payout type that applied in the month it lands on', () => {
+    const changed: WorkSettings[] = [h[0], { ...h[0], effectiveFrom: '2026-11-01', payPeriod: 'semimonthly' }]
+    expect(shiftPeriod({ start: '2026-11-01', end: '2026-11-15' }, changed, -1)).toEqual({ start: '2026-10-01', end: '2026-10-31' })
+    expect(shiftPeriod({ start: '2026-10-01', end: '2026-10-31' }, changed, 1)).toEqual({ start: '2026-11-01', end: '2026-11-15' })
   })
 })
 
