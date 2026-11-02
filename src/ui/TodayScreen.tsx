@@ -25,7 +25,8 @@ export function TodayScreen({ state, setState, date, onDateChange }: Props) {
   const lang = state.language
   const s = settingsAt(state.settingsHistory, date)
   const saved = state.entries[date]
-  const [status, setStatus] = useState<DayStatus>(saved?.status ?? 'worked')
+  // A day off starts as "didn't work", so a habitual Save there doesn't add 8 hours of overtime.
+  const [status, setStatus] = useState<DayStatus>(saved?.status ?? (isWorkingDay(date, s) ? 'worked' : 'absent'))
   const [start, setStart] = useState(saved?.start ?? s.workStart)
   const [end, setEnd] = useState(saved?.end ?? s.workEnd)
   const [error, setError] = useState<string | null>(null)

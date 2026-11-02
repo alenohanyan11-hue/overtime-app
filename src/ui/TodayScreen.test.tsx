@@ -57,6 +57,13 @@ describe('TodayScreen', () => {
     })
   })
 
+  it('a day off with no entry starts as not worked, not as +8 h', () => {
+    const setState = vi.fn()
+    render(<TodayScreen state={state} setState={setState} date="2026-11-08" onDateChange={() => {}} />)
+    expect(screen.getByTestId('deviation')).toHaveTextContent('0 ч')
+    expect(screen.getByRole('button', { name: 'Не работал' })).toHaveAttribute('aria-pressed', 'true')
+  })
+
   it('loads a saved entry', () => {
     setup({ ...state, entries: { '2026-11-02': { date: '2026-11-02', status: 'worked', start: '08:45', end: '19:15' } } })
     expect(screen.getByLabelText('Пришёл')).toHaveValue('08:45')
