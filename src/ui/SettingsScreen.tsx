@@ -26,16 +26,34 @@ function digits(value: string): number {
   return Number(value.replace(/\D/g, '')) || 0
 }
 
+// Keeps digits and one decimal separator ("1500,5" or "1500.5"); spaces between thousands are dropped.
+function cleanAmount(value: string): string {
+  const [whole, ...rest] = value.replace(/[^\d.,]/g, '').split(/[.,]/)
+  return rest.length ? `${whole},${rest.join('')}` : whole
+}
+
+function parseAmount(text: string): number {
+  return Number(text.replace(',', '.')) || 0
+}
+
+// Until a salary is entered, the only record is the built-in default: edit it in place so past days use the real rate too.
+function isFirstSetup(state: AppState, current: WorkSettings): boolean {
+  return state.settingsHistory.length === 1 && current.effectiveFrom === INITIAL_EFFECTIVE_FROM && current.rateAmount === 0
+}
+
+function draftFrom(state: AppState, today: string): WorkSettings {
+  const current = settingsAt(state.settingsHistory, today)
+  return {
+    ...current,
+    effectiveFrom: isFirstSetup(state, current) ? INITIAL_EFFECTIVE_FROM : periodFor(today, current.payPeriod).start,
+  }
+}
+
 export function SettingsScreen({ state, setState, today }: Props) {
   const lang = state.language
-  const current = settingsAt(state.settingsHistory, today)
-  // Until a salary is entered, the only record is the built-in default: edit it in place so past days use the real rate too.
-  const firstSetup =
-    state.settingsHistory.length === 1 && current.effectiveFrom === INITIAL_EFFECTIVE_FROM && current.rateAmount === 0
-  const [draft, setDraft] = useState<WorkSettings>({
-    ...current,
-    effectiveFrom: firstSetup ? INITIAL_EFFECTIVE_FROM : periodFor(today, current.payPeriod).start,
-  })
+  const firstSetup = isFirstSetup(state, settingsAt(state.settingsHistory, today))
+  const [draft, setDraft] = useState<WorkSettings>(() => draftFrom(state, today))
+  const [amountText, setAmountText] = useState(() => String(draft.rateAmount).replace('.', ','))
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null)
 
   function update(patch: Partial<WorkSettings>) {
@@ -52,13 +70,23 @@ export function SettingsScreen({ state, setState, today }: Props) {
     setMessage({ text: t(lang, 'saved'), error: false })
   }
 
-  function download() {
-    const blob = new Blob([exportData(state)], { type: 'application/json' })
+  async function download() {
+    const name = `overtime-backup-${today}.json`
+    const file = new File([exportData(state)], name, { type: 'application/json' })
+    // iPhone home-screen apps can't download files, but they can share them (to Files, Telegram, mail…).
+    if (navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: name })
+      } catch {
+        // the user closed the share sheet
+      }
+      return
+    }
     const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = `overtime-backup-${today}.json`
+    a.href = URL.createObjectURL(file)
+    a.download = name
     a.click()
-    URL.revokeObjectURL(a.href)
+    setTimeout(() => URL.revokeObjectURL(a.href), 10_000)
   }
 
   async function upload(e: ChangeEvent<HTMLInputElement>) {
@@ -74,6 +102,9 @@ export function SettingsScreen({ state, setState, today }: Props) {
     }
     if (!window.confirm(t(lang, 'importConfirm'))) return
     setState(next)
+    const nextDraft = draftFrom(next, today)
+    setDraft(nextDraft)
+    setAmountText(String(nextDraft.rateAmount).replace('.', ','))
     setMessage({ text: t(next.language, 'imported'), error: false })
   }
 
@@ -115,7 +146,15 @@ export function SettingsScreen({ state, setState, today }: Props) {
         </div>
         <label className="field">
           <span>{t(lang, 'amount')}</span>
-          <input inputMode="numeric" value={String(draft.rateAmount)} onChange={(e) => update({ rateAmount: digits(e.target.value) })} />
+          <input
+            inputMode="decimal"
+            value={amountText}
+            onChange={(e) => {
+              const text = cleanAmount(e.target.value)
+              setAmountText(text)
+              update({ rateAmount: parseAmount(text) })
+            }}
+          />
         </label>
         {draft.rateType === 'monthly' && (
           <label className="field">
